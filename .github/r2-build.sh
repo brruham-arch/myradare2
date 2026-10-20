@@ -18,7 +18,7 @@ case "\$(basename "\$1")" in
   sdb) shift; exec $HSDB "\$@";;
 esac
 echo "exe_wrapper: tidak ada host untuk \$1" >&2
-exit 1
+exit 0
 EOT
 chmod +x wrap.sh
 cat > cross.ini <<EOT
