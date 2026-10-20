@@ -2,7 +2,7 @@ set -ex
 ROOT=$PWD
 NDK="${ANDROID_NDK_LATEST_HOME:-${ANDROID_NDK_HOME:-$ANDROID_NDK_ROOT}}"
 TC="$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin"
-API=26
+API=28
 PREFIX=/data/data/com.brruham.myradare2/files/r2
 pip install meson ninja
 git clone --depth 1 https://github.com/radareorg/radare2 r2src
