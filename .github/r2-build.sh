@@ -6,12 +6,28 @@ API=26
 PREFIX=/data/data/com.brruham.myradare2/files/r2
 pip install meson ninja
 git clone --depth 1 https://github.com/radareorg/radare2 r2src
+cd r2src
+meson setup buildhost --buildtype=release
+ninja -C buildhost subprojects/sdb/sdb
+HSDB=$PWD/buildhost/subprojects/sdb/sdb
+test -x $HSDB
+cd $ROOT
+cat > wrap.sh <<EOT
+#!/bin/sh
+case "\$(basename "\$1")" in
+  sdb) shift; exec $HSDB "\$@";;
+esac
+echo "exe_wrapper: tidak ada host untuk \$1" >&2
+exit 1
+EOT
+chmod +x wrap.sh
 cat > cross.ini <<EOT
 [binaries]
 c = '$TC/aarch64-linux-android$API-clang'
 cpp = '$TC/aarch64-linux-android$API-clang++'
 ar = '$TC/llvm-ar'
 strip = '$TC/llvm-strip'
+exe_wrapper = '$ROOT/wrap.sh'
 [host_machine]
 system = 'android'
 cpu_family = 'aarch64'
