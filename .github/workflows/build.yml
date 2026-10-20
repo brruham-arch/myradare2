@@ -1,0 +1,42 @@
+name: build
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  r2:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: c
+        uses: actions/cache@v4
+        with:
+          path: r2.zip
+          key: r2-${{ hashFiles('.github/r2-build.sh') }}
+      - if: steps.c.outputs.cache-hit != 'true'
+        run: bash .github/r2-build.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: r2zip
+          path: r2.zip
+  apk:
+    needs: r2
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: r2zip
+          path: app/src/main/assets
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.9
+      - run: gradle --no-daemon assembleDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MyRadare2-apk
+          path: app/build/outputs/apk/debug/*.apk
